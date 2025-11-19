@@ -8,7 +8,7 @@ export default async function handler (
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    if (req.method !== 'PATCH' && req.method !== 'DELETE') {
+    if (req.method !== 'PATCH' && req.method !== 'DELETE' && req.method !== 'GET') {
         return res.status(405).end()
     }
 
@@ -21,19 +21,46 @@ export default async function handler (
             return res.status(401).json({ message: 'User not authenticated' })
         }
 
+        if (req.method === 'GET') {
+            const { data: task, error: errorTask} = await supabase
+                .from('tasks')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .single()
+
+                if (errorTask) {
+                    throw new Error(errorTask.message)
+                }
+
+            return res.status(200).json(task)
+        }
+
         if (req.method === 'PATCH') {
             const { title, status } = req.body
             const VALID_STATUSES = ['pending', 'on-going', 'done']
+            const updateFields: { title?: string; status?: string } = {};
 
-            if (typeof title !== 'string' || typeof status !== 'string') {
-                return res.status(400).json({ message: 'Invalid task data'})
+            if (status) {
+                if (typeof status !== 'string' || !VALID_STATUSES.includes(status.toLowerCase())) {
+                    return res.status(400).json({ 
+                        message: `Invalid status value. Must be one of: ${VALID_STATUSES.join(', ')}` 
+                    });
+                }
+
+                updateFields.status = status.toLowerCase();
             }
 
-            if (!VALID_STATUSES.includes(status)) {
-                return res.status(400).json({ 
-                    message: `Invalid status value. Must be one of: ${VALID_STATUSES.join(', ')}` 
-                });
+        if (title) {
+            if (typeof title !== 'string') {
+                return res.status(400).json({ message: 'Title must be a string.' });
             }
+
+            updateFields.title = title;
+        }
+
+        if (Object.keys(updateFields).length === 0) {
+            return res.status(400).json({ message: 'No fields provided for update.' });
+        }
 
             const { data: updatedTask, error: errorUpdate } = await supabase
                 .from('tasks')
@@ -57,6 +84,8 @@ export default async function handler (
                 .delete()
                 .eq('id', taskId)
                 .eq('user_id', currentUser.id)
+                .select()
+                .single()
 
                 if (errorDelete) return res.status(400).json({ message: errorDelete.message })
             

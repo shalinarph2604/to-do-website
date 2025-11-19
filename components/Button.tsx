@@ -16,16 +16,16 @@ const Button: React.FC<ButtonProps> = ({
             className='
                 disabled:opacity-70
                 disabled:cursor-not-allowed
-                hover:opacity-80
+                hover:opacity-90
                 cursor-pointer
                 transition
-                rounded full
+                rounded-lg
                 bg-indigo-600
                 text-white
                 font-semibold
                 text-md
                 px-4 py-2
-                w-1/5
+                w-1/3
             '
         >
             {label}

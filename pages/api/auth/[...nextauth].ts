@@ -19,7 +19,6 @@ console.log('NEXTAUTH_SECRET=', Boolean(process.env.NEXTAUTH_SECRET))
 
 export const authOptions = {
     adapter: SupabaseAdapter({
-        // server-only env (service role)
         url: process.env.SUPABASE_URL!,
         secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
     }),

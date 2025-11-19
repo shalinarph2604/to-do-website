@@ -60,7 +60,7 @@ const RegisterModal = () => {
     }, [registerModal, email, username, name, password])
 
     const bodyContent = (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                     {error}

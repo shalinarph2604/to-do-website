@@ -7,12 +7,16 @@ import { toast } from "react-hot-toast";
 import useLoginModal from "@/hooks/useLoginModal";
 import useRegisterModal from "@/hooks/useRegisterModal";
 import { useState, useCallback } from "react";
+import { useRouter } from "next/router";
+import useCurrentUser from "@/hooks/useCurrentUser";
 
 import { signIn } from "next-auth/react";
 
 const LoginModal = () => {
     const loginModal = useLoginModal()
     const registerModal = useRegisterModal()
+    const router = useRouter()
+    const { mutate: mutateCurrentUser } = useCurrentUser()
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -32,7 +36,7 @@ const LoginModal = () => {
         try {
             setIsLoading(true)
 
-            const res =await signIn('credentials', {
+            const res = await signIn('credentials', {
                 email,
                 password,
                 redirect: false,
@@ -41,9 +45,16 @@ const LoginModal = () => {
             console.log('signIn result', res)
 
             if (res && (res as any).ok) {
-                loginModal.onClose()
+                await mutateCurrentUser()
+                
                 setEmail('')
                 setPassword('')
+
+                loginModal.onClose()
+
+                router.push('/') 
+                
+                toast.success('Login berhasil!')
             } else {
                 const message = (res as any)?.error || 'Invalid credentials'
                 toast.error(message)
@@ -55,10 +66,10 @@ const LoginModal = () => {
         finally {
             setIsLoading(false)
         }
-    }, [email, password, loginModal])
+    }, [email, password, loginModal, mutateCurrentUser, router])
 
     const bodyContent = (
-        <div>
+        <div className="flex flex-col gap-4">
             <Input 
                 placeholder="Email"
                 onChange={(e) => setEmail(e.target.value)}

@@ -110,6 +110,7 @@ const Modal: React.FC<ModalProps> = ({
                                 disabled:opacity-50
                             "
                             aria-label="Close Modal"
+                            disabled={disabled}
                         >
                             <AiOutlineClose size={20}/>
                         </button>
@@ -119,17 +120,17 @@ const Modal: React.FC<ModalProps> = ({
                         {body}
                     </div>
                     {/* FOOTER */}
-                    <div className="p-6 pt-0 space-y-4">
+                    <div className="p-6 pt-0 space-y-4 flex items-center justify-between">
+                        {footer && (
+                            <div className="text-sm">
+                                {footer}
+                            </div>
+                        )}
                         <Button 
                             label={actionLabel}
                             onClick={handleSubmit}
                             disabled={disabled}
                         />
-                        {footer && (
-                            <div className="text-center text-sm">
-                                {footer}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
