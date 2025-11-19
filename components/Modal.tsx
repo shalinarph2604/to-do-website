@@ -1,7 +1,6 @@
 import Button from "./Button";
 import { AiOutlineClose } from "react-icons/ai";
 import { useCallback, useEffect } from "react";
-import { MoveDiagonal2 } from "lucide-react";
 
 interface ModalProps {
     isOpen?: boolean
