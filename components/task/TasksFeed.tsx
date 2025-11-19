@@ -31,7 +31,7 @@ const TaskFeed: React.FC = () => {
         <div className="flex flex-col gap-6 p-4">
             
             {/* Tombol Add New Task */}
-            <div className="flex justify-end">
+            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 transform">
                 <Button 
                     onClick={onOpenModal}
                     disabled={isLoading}

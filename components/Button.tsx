@@ -25,7 +25,7 @@ const Button: React.FC<ButtonProps> = ({
                 font-semibold
                 text-md
                 px-4 py-2
-                w-1/3
+                w-3xs
             '
         >
             {label}
