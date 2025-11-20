@@ -10,21 +10,25 @@ import useTask from "@/hooks/useTask";
 
 const EditModal = () => {
     
-    const editModal = useEditModal(); 
-    const taskId = editModal.taskId; 
+    const editModal = useEditModal()    
+    const taskId = editModal.taskId
+    const taskTitle = editModal.taskTitle
 
-    const { task: taskData, isLoading: isTaskLoading, mutateTask } = useTask(taskId);
-    
+    const { task: taskData, isLoading: isTaskLoading, mutateTask } = useTask(taskId || '');
     const { mutateTasks } = useTasks();
 
     const [title, setTitle] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (taskData) {
-            setTitle(taskData.title || '');
+        if (editModal.isOpen) {
+            if (taskTitle) {
+                setTitle(taskTitle)
+            } else if (taskData) {
+                setTitle(taskData.title || '')
+            }
         }
-    }, [taskData]);
+    }, [taskData, editModal.isOpen, taskTitle]);
 
     const submitTask = useCallback(async () => {
         try {
@@ -35,12 +39,18 @@ const EditModal = () => {
                  return;
             }
 
+            if (!taskId) {
+                toast.error('Task ID not found')
+                return
+            }
+
             await axios.patch(`/api/tasks/${taskId}`, { title });
 
-            mutateTask();
-            mutateTasks();
+            await mutateTask();
+            await mutateTasks();
 
             toast.success('Title successfully updated!');
+            
             editModal.onClose();
         } catch (error) {
             console.error(error);

@@ -15,6 +15,10 @@ export default async function handler (
     try {
         const { taskId } = req.query
 
+        if (!taskId || typeof taskId !== 'string') {
+            return res.status(400).json({ message: 'Invalid task ID' });
+        }
+
         const { currentUser } = await serverAuth(req, res)
 
         if (!currentUser) {
@@ -25,10 +29,14 @@ export default async function handler (
             const { data: task, error: errorTask} = await supabase
                 .from('tasks')
                 .select('*')
+                .eq('id', taskId)
                 .eq('user_id', currentUser.id)
                 .single()
 
                 if (errorTask) {
+                    if (errorTask.code === 'PGRST116' || errorTask.message?.includes('0 rows')) {
+                        return res.status(404).json({ message: 'Task not found or unauthorized.' });
+                    }
                     throw new Error(errorTask.message)
                 }
 
@@ -50,12 +58,16 @@ export default async function handler (
                 updateFields.status = status.toLowerCase();
             }
 
-        if (title) {
+        if (title !== undefined) {
             if (typeof title !== 'string') {
                 return res.status(400).json({ message: 'Title must be a string.' });
             }
 
-            updateFields.title = title;
+            if (!title.trim()) {
+                return res.status(400).json({ message: 'Title cannot be empty.' })
+            }
+
+            updateFields.title = title.trim();
         }
 
         if (Object.keys(updateFields).length === 0) {
@@ -64,17 +76,26 @@ export default async function handler (
 
             const { data: updatedTask, error: errorUpdate } = await supabase
                 .from('tasks')
-                .update({
-                    status: status,
-                    title
-                })
+                .update(updateFields)
                 .eq('id', taskId)
                 .eq('user_id', currentUser.id)
                 .select()
                 .single()
 
-                if (errorUpdate) return res.status(400).json({ message: errorUpdate.message })
-            
+                if (errorUpdate) {
+                    console.error('❌ Supabase update error:', errorUpdate)
+
+                    if (errorUpdate.code === 'PGRST116' || errorUpdate.message.includes('0 rows')) {
+                        return res.status(404).json({ message: 'Task not found or unauthorized to update.' });
+                    }
+
+                    return res.status(400).json({ message: errorUpdate.message || 'Update failed.' })
+                }
+
+                if (!updatedTask) {
+                    return res.status(404).json({ message: 'Task not found or unauthorized to update.'})
+                }
+
             return res.status(200).json(updatedTask)
         }
 
@@ -87,8 +108,10 @@ export default async function handler (
                 .select()
                 .single()
 
-                if (errorDelete) return res.status(400).json({ message: errorDelete.message })
-            
+                if (errorDelete) {
+                    console.error('❌ Supabase delete error:', errorDelete)
+                    return res.status(400).json({ message: errorDelete.message })
+                }
             return res.status(200).json(deletedTask)
         }
 

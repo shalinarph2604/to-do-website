@@ -1,18 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MoreVertical, Edit, Trash2 } from 'lucide-react'; 
+import useEditModal from '@/hooks/useEditModal';
 
 interface TaskActionsMenuProps {
   taskId: string;
-  taskTitle: string;
-  onEditClick: (e: React.MouseEvent) => void; 
+  taskTitle: string; 
   onDeleteClick: (e: React.MouseEvent) => void;
 }
 
 const TaskActionsMenu: React.FC<TaskActionsMenuProps> = ({ 
-  onEditClick, 
+  taskId,
+  taskTitle,
   onDeleteClick 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const editModal = useEditModal()
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,6 +29,14 @@ const TaskActionsMenu: React.FC<TaskActionsMenuProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [menuRef]);
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    editModal.onOpen(taskId, taskTitle)
+
+    setIsOpen(false)
+  }
 
   const handleMenuAction = (handler: (e: React.MouseEvent) => void) => (e: React.MouseEvent) => {
       handler(e); 
@@ -60,7 +70,7 @@ const TaskActionsMenu: React.FC<TaskActionsMenuProps> = ({
             
             {/* Opsi EDIT - Panggil handler yang dibungkus */}
             <div
-              onClick={handleMenuAction(onEditClick)}
+              onClick={handleEdit}
               className="
                 flex items-center px-4 py-2 text-sm text-gray-700 
                 hover:bg-gray-100 cursor-pointer

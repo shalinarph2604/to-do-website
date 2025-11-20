@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast';
 import useTasks from '@/hooks/useTasks';
 import useEditModal from '@/hooks/useEditModal';
 
-import TaskActionsMenu from './TaskActionMenu';
+import TaskActionsMenu from './TaskActionsMenu';
 import StatusTask from './StatusTask';
 
 interface TaskProps {
@@ -35,11 +35,6 @@ const CardTask: React.FC<TaskProps> = ({ task }) => {
         }
     };
 
-    const handleEdit = (e: React.MouseEvent) => {
-        e.stopPropagation(); 
-        editModal.onOpen(); 
-    };
-
     return (
         <div className="border p-4 rounded-lg shadow-sm flex justify-between items-center">
             <div className="flex-1">
@@ -55,7 +50,6 @@ const CardTask: React.FC<TaskProps> = ({ task }) => {
             <TaskActionsMenu 
                 taskId={task.id}
                 taskTitle={task.title}
-                onEditClick={handleEdit}
                 onDeleteClick={handleDelete}
             />
         </div>
