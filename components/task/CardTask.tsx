@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import useTasks from '@/hooks/useTasks';
-import useEditModal from '@/hooks/useEditModal';
 
 import TaskActionsMenu from './TaskActionsMenu';
 import StatusTask from './StatusTask';
@@ -16,7 +15,6 @@ interface TaskProps {
 
 const CardTask: React.FC<TaskProps> = ({ task }) => {
     const { mutateTasks } = useTasks();
-    const editModal = useEditModal();
 
     const handleDelete = async (e: React.MouseEvent) => {
         e.stopPropagation(); 
@@ -36,10 +34,9 @@ const CardTask: React.FC<TaskProps> = ({ task }) => {
     };
 
     return (
-        <div className="border p-4 rounded-lg shadow-sm flex justify-between items-center">
+        <div className="border border-gray-100 p-4 rounded-lg shadow-sm flex justify-between items-center">
             <div className="flex-1">
-                <p className="font-semibold">{task.title}</p>
-            
+                <p className="font-semibold text-lg mb-3">{task.title}</p>
                 <StatusTask
                     taskId={task.id}
                     currentStatus={task.status}

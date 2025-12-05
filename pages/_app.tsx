@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "bootstrap/dist/css/bootstrap-grid.min.css"
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import LoginModal from "@/components/modals/LoginModal";
